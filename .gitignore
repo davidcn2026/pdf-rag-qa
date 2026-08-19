@@ -1,4 +1,4 @@
-# ===== 密钥（绝对不能上传）=====
+# ===== 密钥 =====
 rag_app/config.py
 
 # ===== Python 生成文件 =====
@@ -16,7 +16,7 @@ chroma_demo/
 venv/
 env/
 
-# ===== 个人/本地文件（不上传）=====
+# ===== 个人/本地文件 ====
 .claude/
 resume.md
 PROJECT.md
