@@ -1,0 +1,25 @@
+# ===== 密钥（绝对不能上传）=====
+rag_app/config.py
+
+# ===== Python 生成文件 =====
+__pycache__/
+*.pyc
+*.pyo
+*.egg-info/
+
+# ===== 向量库数据（运行时自动生成）=====
+chroma_db/
+chroma_demo/
+
+# ===== 虚拟环境 =====
+.venv/
+venv/
+env/
+
+# ===== 个人/本地文件（不上传）=====
+.claude/
+resume.md
+PROJECT.md
+
+# ===== 其他 =====
+.DS_Store
