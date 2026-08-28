@@ -3,3 +3,5 @@ chromadb
 pdfplumber
 sentence-transformers
 openai
+fastapi
+uvicorn

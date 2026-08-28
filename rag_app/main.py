@@ -4,20 +4,15 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 import os
 os.environ["HF_HUB_OFFLINE"] = "1"
 import streamlit as st
-import pdfplumber
-from rag_app import splitter, retriever, generator
+from rag_app import splitter, retriever, generator, loader
 
 st.title("PDF 知识库问答")                    # ① 页面标题
 
 # ===== 上传 PDF → 提取 → 切块 → 入库 =====
 uploaded = st.file_uploader("上传 PDF", type="pdf")   # ② 上传框，返回文件对象或 None
 if uploaded is not None:
-    text = ""                                      # 你的任务A：pdfplumber 提取文字
-
-    with pdfplumber.open(uploaded) as pdf:
-        for page in pdf.pages:
-            text += page.extract_text() or ""
-
+    text = loader.extract_text(uploaded)
+    
     if text.strip():
         chunks = splitter.split_text(text)             # 你的任务B：切块
         retriever.clear()
