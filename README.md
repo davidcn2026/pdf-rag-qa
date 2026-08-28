@@ -10,6 +10,7 @@
 - 🔍 语义检索：把文字转成向量，按「意思」匹配，而不是按「字面」匹配
 - 🧠 检索增强生成：严格基于检索到的文档内容回答，资料里没有就明确说「未找到」，不编造
 - 💬 简洁的 Web 界面（Streamlit），上传 + 提问 + 对话一站式完成
+- 💬 支持多轮对话，能记住上文，追问「那第二个问题呢」也能接上
 
 ## 技术栈
 
@@ -36,11 +37,13 @@
 │   ├── main.py           # Streamlit 界面（入口）
 │   ├── splitter.py       # 文本切割器（切块 + 重叠）
 │   ├── retriever.py      # 检索器（向量入库 + 相似度检索）
+│   ├── loader.py          # 提取PDF文字，转为字符串
 │   ├── generator.py      # 生成器（Prompt 构造 + 调用 LLM）
-│   ├── config.py         # 配置（API 密钥等，已被 .gitignore 排除）
 │   └── config.example.py # 配置模板
-├── pytorch_demo/         # PyTorch 热身练习（TwoLayerNet）
+├── api.py                # 调用api
 ├── requirements.txt      # 依赖清单
+├── test_retriever.py     # retriever 单元测试
+├── example_usage.py      # 手动运行示例（检索 + 生成）
 └── README.md
 ```
 
@@ -60,7 +63,8 @@ pip install -r requirements.txt
 ## 运行
 
 ```bash
-streamlit run rag_app/main.py
+网页版：streamlit run rag_app/main.py   
+API版：uvicorn api:app --reload
 ```
 
 浏览器打开 `http://localhost:8501`，上传 PDF，即可开始提问。
