@@ -6,6 +6,7 @@ from fastapi import FastAPI, UploadFile, File
 from pydantic import BaseModel
 from rag_app import generator, retriever, loader, splitter
 
+history = []
 app = FastAPI(title="PDF 知识库问答 API")
 
 class AskRequest(BaseModel):
@@ -23,8 +24,12 @@ def health():
 
 @app.post("/ask")
 def ask(req: AskRequest):
+    global history
     context = retriever.search(req.question)
-    answer = generator.generate(req.question, context)
+    answer = generator.generate(req.question, context, history=history)
+    history.append({"role": "user", "content": req.question})
+    history.append({"role": "assistant", "content": answer})
+    history = history[-6:]
     return AskResponse(answer=answer)
 
 @app.post("/search")
