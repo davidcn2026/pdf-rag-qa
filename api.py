@@ -21,15 +21,22 @@ class SearchRequest(BaseModel):
 @app.get("/health")
 def health():
     return {"status": "ok"}
-
+    
 @app.post("/ask")
-def ask(req: AskRequest):
+def ask(req:AskRequest):
     global history
-    context = retriever.search(req.question)
+    category = generator.classify_question(req.question)   # 先判断
+   
+    if category == "文档":
+        context = retriever.search(req.question)   # 走文档路：检索
+    else:
+        context = []                               # 走历史路：不检索
+
     answer = generator.generate(req.question, context, history=history)
     history.append({"role": "user", "content": req.question})
     history.append({"role": "assistant", "content": answer})
     history = history[-6:]
+    
     return AskResponse(answer=answer)
 
 @app.post("/search")
@@ -45,4 +52,10 @@ async def upload(file: UploadFile = File(...)):
     retriever.clear()                                    # ④ 清空旧文档
     retriever.add_documents(chunks)                      # ⑤ 新文档入库
     return {"filename": file.filename, "chunks": len(chunks)}
+
+@app.post("/reset")
+def reset():
+    global history
+    history = []
+    return {"status": "cleared"}
 
