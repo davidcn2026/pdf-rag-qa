@@ -3,7 +3,6 @@ from openai import OpenAI
 from . import config
 import json
 
-
 # ===== 创建客户端（指向 DeepSeek，模块导入时执行一次） =====
 _client = OpenAI(
     api_key=config.DEEPSEEK_API_KEY,
@@ -12,10 +11,6 @@ _client = OpenAI(
 
 def generate(question:str, context_chunks:list, history=None) -> str:
     """输入：问题 + 检索到的文本块；输出：LLM 回答文本"""
-    # 任务1：用 join 把 context_chunks 拼成一段 context
-    # 任务2：用 f-string 把 context 和 question 填进 prompt 模板（前面讲过的那段模板）
-    # 任务3：调 _client.chat.completions.create(...) 拿 response
-    # 任务4：return 提取出的 answer
     if history is None:
         history = []    
     context = "\n\n".join(context_chunks)
@@ -41,8 +36,8 @@ def generate(question:str, context_chunks:list, history=None) -> str:
                   ),
         temperature=0.0,
     )
-    
-    # 第 3 步：从 response 里抠出回答文本
+
+    # 从字典中提取出答案
     try:
         answer = response.choices[0].message.content
     except (IndexError, AttributeError):
@@ -50,6 +45,7 @@ def generate(question:str, context_chunks:list, history=None) -> str:
     return answer
 
 def classify_question(question:str) -> str:
+    """接收一个问题，返回问题的类型"""
     # 构造分类 prompt
     prompt = f"""你是问题分类器。
 判断下面这个问题：答案应该在用户上传的【文档】里找，还是在【历史记录】里找。
