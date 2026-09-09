@@ -4,7 +4,7 @@ os.environ["HF_HUB_OFFLINE"] = "1"          # 必须在 import retriever 之前
 
 from fastapi import FastAPI, UploadFile, File
 from pydantic import BaseModel
-from rag_app import generator, retriever, loader, splitter
+from rag_app import generator, retriever, loader, splitter, tools
 
 history = []
 app = FastAPI(title="PDF 知识库问答 API")
@@ -29,10 +29,20 @@ def ask(req:AskRequest):
    
     if category == "文档":
         context = retriever.search(req.question)   # 走文档路：检索
-    else:
+        answer = generator.generate(req.question, context, history=history)
+    elif category == "历史":
         context = []                               # 走历史路：不检索
+        answer = generator.generate(req.question, context, history=history)
+    elif category == "计算":
+        instruction = generator.get_tool_call(req.question)
 
-    answer = generator.generate(req.question, context, history=history)
+        if instruction["tool"] == "calculate":
+            args = instruction["args"]
+            result = tools.calculate(args)
+            answer = f"{args} = {result}"
+        else:
+            answer = "抱歉我没能理解这个计算式，请换一种说法。"
+        
     history.append({"role": "user", "content": req.question})
     history.append({"role": "assistant", "content": answer})
     history = history[-6:]

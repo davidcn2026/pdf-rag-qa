@@ -63,8 +63,8 @@ pip install -r requirements.txt
 ## 运行
 
 ```bash
-网页版：streamlit run rag_app/main.py   
-API版：uvicorn api:app --reload
+网页：streamlit run rag_app/main.py   
+接口测试：uvicorn api:app --reload
 ```
 
 浏览器打开 `http://localhost:8501`，上传 PDF，即可开始提问。
