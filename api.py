@@ -4,9 +4,8 @@ os.environ["HF_HUB_OFFLINE"] = "1"          # 必须在 import retriever 之前
 
 from fastapi import FastAPI, UploadFile, File
 from pydantic import BaseModel
-from rag_app import generator, retriever, loader, splitter, tools
+from rag_app import generator, retriever, loader, splitter, tools, agent
 
-history = []
 app = FastAPI(title="PDF 知识库问答 API")
 
 class AskRequest(BaseModel):
@@ -24,29 +23,7 @@ def health():
     
 @app.post("/ask")
 def ask(req:AskRequest):
-    global history
-    category = generator.classify_question(req.question)   # 先判断
-   
-    if category == "文档":
-        context = retriever.search(req.question)   # 走文档路：检索
-        answer = generator.generate(req.question, context, history=history)
-    elif category == "历史":
-        context = []                               # 走历史路：不检索
-        answer = generator.generate(req.question, context, history=history)
-    elif category == "计算":
-        instruction = generator.get_tool_call(req.question)
-
-        if instruction["tool"] == "calculate":
-            args = instruction["args"]
-            result = tools.calculate(args)
-            answer = f"{args} = {result}"
-        else:
-            answer = "抱歉我没能理解这个计算式，请换一种说法。"
-        
-    history.append({"role": "user", "content": req.question})
-    history.append({"role": "assistant", "content": answer})
-    history = history[-6:]
-    
+    answer = agent.ask_agent(req.question)
     return AskResponse(answer=answer)
 
 @app.post("/search")
@@ -65,7 +42,6 @@ async def upload(file: UploadFile = File(...)):
 
 @app.post("/reset")
 def reset():
-    global history
-    history = []
+    agent.history.clear()
     return {"status": "cleared"}
 
