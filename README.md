@@ -42,11 +42,12 @@
 
 ```
 ├── rag_app/
-│   ├── main.py           # Streamlit 界面（入口）
+│   ├── agent.py          # Agent 编排层：分类分流 + 共享对话状态（统一入口）
+│   ├── main.py           # Streamlit 界面
 │   ├── splitter.py       # 文本切割器（切块 + 重叠）
 │   ├── retriever.py      # 检索器（向量入库 + 相似度检索）
 │   ├── loader.py         # 提取 PDF 文字
-│   ├── generator.py      # 分类 / 工具调用决策 / Prompt 构造 + 调 LLM
+│   ├── generator.py      # LLM 调用：问题分类、工具指令、回答生成
 │   ├── tools.py          # 工具：calculate（ast 白名单安全计算）
 │   └── config.example.py # 配置模板
 ├── api.py                # FastAPI 接口（/upload /ask /search /reset）
@@ -55,6 +56,8 @@
 ├── example_usage.py      # 手动运行示例（检索 + 生成）
 └── README.md
 ```
+
+> `api.py`（FastAPI）与 `main.py`（Streamlit）共用 `agent.ask_agent()` 单一入口，改逻辑只需改一处。
 
 ## 安装
 
